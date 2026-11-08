@@ -152,6 +152,21 @@
   .paymethods button{padding:12px 8px;border-radius:12px;border:2px solid var(--line);font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:2px}
   .paymethods button span{font-size:22px}
   .paymethods button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+  .scanbox{display:flex;align-items:center;gap:12px;background:var(--green-soft);border-radius:12px;padding:10px 12px}
+  .scanbox small{color:var(--green);font-weight:600;font-size:12px;line-height:1.35}
+  .scanbox .btn{flex:0 0 auto}
+  .scanresult{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:start;border:2px solid var(--line);border-radius:12px;padding:10px}
+  .scanresult img{width:84px;height:112px;object-fit:cover;border-radius:8px;background:var(--bg)}
+  .scaninfo{display:grid;gap:6px;font-size:14px;font-weight:700}
+  .scaninfo .ok{color:var(--green)} .scaninfo .warn{color:var(--warn)} .scaninfo .bad{color:var(--red)} .scaninfo .muted{color:var(--muted);font-weight:600;font-size:12px}
+  .scaninfo .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .scaninfo .chips button{padding:5px 10px;border-radius:99px;border:2px solid var(--line);font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+  .scaninfo .chips button.on{border-color:var(--green);background:var(--green);color:#fff}
+  .scaninfo .acts{display:flex;gap:10px;flex-wrap:wrap}
+  .scaninfo .acts button,.scaninfo .acts a{font-size:12px;font-weight:800;color:var(--muted);text-decoration:underline;padding:0}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .prooflink{font-size:12px;font-weight:800;color:var(--green);text-decoration:none;white-space:nowrap}
   .note{font-size:13px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:10px}
   .pm{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap}
   .pm-cash{background:var(--green-soft);color:var(--green)}
@@ -208,10 +223,24 @@
   .custom-range{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:-6px 0 16px;font-weight:700;font-size:14px}
   .custom-range input{padding:8px 10px;border:2px solid var(--line);border-radius:10px}
   .chartwrap{position:relative;height:280px;margin-bottom:20px}
-  .bars{display:none;gap:12px;flex-direction:column;justify-content:center;height:100%}
+  .bars{display:none;gap:12px;flex-direction:column;justify-content:center;min-height:100%;padding:10px 0}
   .bars .b{display:grid;grid-template-columns:minmax(90px,180px) 1fr auto;align-items:center;gap:10px;font-weight:700;font-size:14px}
   .bars .t{height:28px;border-radius:8px;background:var(--yellow-soft);overflow:hidden}
   .bars .t i{display:block;height:100%;border-radius:8px}
+  .subtabs{display:flex;gap:4px;border-bottom:3px solid var(--line);margin:0 0 18px;overflow-x:auto}
+  .subtabs button{padding:10px 16px;font-family:var(--display);font-weight:600;font-size:16px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-3px;white-space:nowrap}
+  .subtabs button:hover{color:var(--ink)}
+  .subtabs button.on{color:var(--red);border-bottom-color:var(--red)}
+  .hint-inline{color:var(--muted);font-size:13px;font-weight:600}
+  .linkbtn{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:var(--red);border-radius:8px;padding:3px 6px;margin:-3px -6px;white-space:nowrap}
+  .linkbtn:hover{background:var(--red-soft)}
+  .linkbtn .pm{cursor:pointer}
+  .linkbtn .go{font-size:12px;color:var(--muted)}
+  .bars .b{cursor:pointer;border-radius:8px;padding:2px 4px}
+  .bars .b:hover{background:var(--yellow-soft)}
+  .bars .b.sel span:first-child{color:var(--red)}
+  @keyframes flashrow{0%,30%{background:var(--yellow)}100%{background:transparent}}
+  tr.flash td{animation:flashrow 2.6s ease-out}
   .section-title{font-size:16px;margin:4px 0 10px;color:var(--green);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .section-title small{color:var(--muted);font-family:"Nunito",sans-serif;font-weight:700;font-size:13px}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
@@ -298,6 +327,10 @@
     .emoji-grid{grid-template-columns:repeat(6,1fr)}
     .paysum{grid-template-columns:1fr}
     .photo-edit{grid-template-columns:1fr}
+    .scanbox{flex-direction:column;align-items:stretch;text-align:center}
+    .bars .b{grid-template-columns:1fr auto;row-gap:6px}
+    .bars .t{grid-column:1/-1;grid-row:2}
+    .subtabs button{padding:10px 10px;font-size:15px}
   }
 </style>
 </head>
@@ -370,8 +403,17 @@
           <div class="r change" id="changeBox"><span>Change</span><b id="cChange">—</b></div>
         </div>
         <div id="refBox" class="sum" style="margin:0;display:none">
-          <div class="r"><span>Reference no. <small style="color:var(--muted)">(optional)</small></span>
-            <input class="field" id="refNo" maxlength="40" placeholder="e.g. 1012 345 678" autocomplete="off"></div>
+          <div class="scanbox" id="scanBox">
+            <button type="button" class="btn btn-green btn-sm" id="btnScan">📷 Scan customer's receipt</button>
+            <input type="file" id="scanInput" accept="image/*" capture="environment" hidden>
+            <small id="scanHint">Take a photo of the customer's payment screen. The reference number is read for you, and the photo is saved as proof of payment.</small>
+          </div>
+          <div class="scanresult" id="scanResult" style="display:none">
+            <img id="scanThumb" alt="Receipt photo">
+            <div class="scaninfo" id="scanInfo"></div>
+          </div>
+          <div class="r"><span>Reference no. <small style="color:var(--muted)" id="refHint">(scan or type)</small></span>
+            <input class="field" id="refNo" maxlength="40" placeholder="e.g. 1012 345 678901" autocomplete="off"></div>
           <div class="note" id="refNote">Check that the payment arrived in the app before completing the order.</div>
         </div>
       </div>
@@ -437,15 +479,39 @@
         <div class="kpi"><small>Items sold</small><b id="kUnits">—</b></div>
         <div class="kpi"><small>Avg. order</small><b id="kAvg">—</b></div>
       </div>
-      <h4 class="section-title">💳 By payment method</h4>
-      <div class="paysum" id="paySum"></div>
-      <h4 class="section-title">🏆 Top 5 Best Sellers</h4>
-      <div class="chartwrap"><canvas id="chart"></canvas><div id="bars" class="bars"></div><p class="empty" id="chartEmpty" style="display:none">No sales in this period yet.</p></div>
-      <h4 class="section-title">📆 Daily summary</h4>
-      <div class="tablewrap">
-        <table><thead><tr><th>Date</th><th class="num">Orders</th><th class="num">Cash</th><th class="num">G-Cash</th><th class="num">Bank</th><th class="num">Total</th></tr></thead>
-        <tbody id="dailyBody"></tbody></table>
+      <div class="subtabs" id="reportTabs">
+        <button data-rtab="overview" class="on">📈 Overview</button>
+        <button data-rtab="best">🏆 Best Sellers</button>
+        <button data-rtab="orders">🧾 All Orders</button>
       </div>
+
+      <div id="paneOverview">
+        <h4 class="section-title">💳 By payment method</h4>
+        <div class="paysum" id="paySum"></div>
+        <h4 class="section-title">📆 Daily summary</h4>
+        <div class="tablewrap">
+          <table><thead><tr><th>Date</th><th class="num">Orders</th><th class="num">Cash</th><th class="num">G-Cash</th><th class="num">Bank</th><th class="num">Total</th></tr></thead>
+          <tbody id="dailyBody"></tbody></table>
+        </div>
+      </div>
+
+      <div id="paneBest" style="display:none">
+        <h4 class="section-title">🏆 Top 5 Best Sellers <small>Tap a bar to see every sale of that meal</small></h4>
+        <div class="chartwrap"><canvas id="chart"></canvas><div id="bars" class="bars"></div><p class="empty" id="chartEmpty" style="display:none">No sales in this period yet.</p></div>
+        <h4 class="section-title" id="mealTableTitle">🍽️ Meal sales <small id="mealCount"></small></h4>
+        <div class="toolbar">
+          <select id="mealFilter"><option value="">All meals</option></select>
+          <span class="hint-inline">Tap an order number or payment to open that order in <b>All Orders</b>.</span>
+        </div>
+        <div class="tablewrap tall">
+          <table>
+            <thead><tr><th>Date</th><th>Time</th><th>Order</th><th>Customer</th><th>Meal</th><th class="num">Qty</th><th class="num hide-sm">Price</th><th class="num">Cost</th><th>Payment</th></tr></thead>
+            <tbody id="mealBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="paneOrders" style="display:none">
       <h4 class="section-title">🧾 All orders <small id="ordersCount"></small></h4>
       <div class="toolbar">
         <input id="salesSearch" placeholder="Search order #, customer, item, reference…">
@@ -457,6 +523,7 @@
           <thead><tr><th>Date</th><th>Time</th><th>Order</th><th>Customer</th><th>Items</th><th>Payment</th><th class="hide-sm">Ref. no.</th><th class="hide-sm">Cashier</th><th class="hide-sm">Status</th><th class="num">Total</th></tr></thead>
           <tbody id="salesBody"></tbody>
         </table>
+      </div>
       </div>
     </div>
   </div>
@@ -629,7 +696,10 @@ let payMethod = 'Cash';
 let orders = { preparing: [], completed: [] }, orderTab = 'preparing';
 let ownerTab = 'items';
 let salesRange = 'today', sales = [];
+let reportTab = 'overview', mealRows = [], bestTotals = [];
 let photo = { current:'', data:null, removed:false };
+let scan = { busy:false, proofUrl:'', thumb:'' };
+const SCAN_MAX_PX = 1600;   // receipt photos keep more detail so the numbers stay readable
 let pollTimer = null;
 
 /* ------------------------- Demo backend ------------------------- */
@@ -676,7 +746,7 @@ const demo = (() => {
   const clone = () => ({ items: products.map(p => ({...p})), categories: categories.map(c => ({...c})) });
   const summary = s => s.lines.map(([n,q,p]) => `${q}x ${n} @ ${p.toFixed(2)}`).join(' | ');
   const out = s => ({ id:s.id, orderNo:s.orderNo, ts:new Date(s.ts).toISOString(), customer:s.customer, items:summary(s),
-    total:s.total, paid:s.paid, change:s.change, method:s.method, reference:s.reference, cashier:s.cashier, status:s.status,
+    total:s.total, paid:s.paid, change:s.change, method:s.method, reference:s.reference, cashier:s.cashier, status:s.status, proofUrl:s.proofUrl || '',
     completedAt: s.completedAt ? new Date(s.completedAt).toISOString() : '' });
   const pub = u => ({ username:u.username, displayName:u.displayName, role:u.role, canViewSales: u.role === 'owner' });
   const ownerOnly = ['getSales','saveProduct','deleteProduct','uploadPhoto','saveCategory','deleteCategory','reorderCategories','listUsers','saveUser'];
@@ -690,7 +760,7 @@ const demo = (() => {
     },
     me: (b, u) => ({ ok:true, user:pub(u) }),
     getItems: () => ({ ok:true, ...clone() }),
-    checkout({ items, payment, customer, method, reference }, u){
+    checkout({ items, payment, customer, method, reference, proofUrl }, u){
       let total = 0; const lines = items.map(it => { const p = products.find(x => x.id === it.id);
         if (!p) throw err('Item no longer on the menu.'); if (!p.available) throw err(p.name + ' is sold out.');
         total += p.price * it.qty; return [p.name, it.qty, p.price]; });
@@ -700,9 +770,9 @@ const demo = (() => {
       const dk = new Date().toDateString(); seqByDay[dk] = (seqByDay[dk] || 0) + 1;
       const s = { id:'TK-DEMO-' + (sales.length + 1), ts:Date.now(), lines, total, paid, change, method,
         reference: method === 'Cash' ? '' : (reference || ''), customer:(customer || '').slice(0,40), cashier:u.displayName,
-        status:'Preparing', completedAt:0, orderNo: seqByDay[dk] };
+        status:'Preparing', completedAt:0, orderNo: seqByDay[dk], proofUrl: method === 'Cash' ? '' : (proofUrl || '') };
       sales.push(s);
-      return { ok:true, transactionId:s.id, orderNo:s.orderNo, customer:s.customer, total, payment:paid, change, method, reference:s.reference };
+      return { ok:true, transactionId:s.id, orderNo:s.orderNo, customer:s.customer, total, payment:paid, change, method, reference:s.reference, proofUrl:s.proofUrl };
     },
     getOrders(){
       return { ok:true, preparing: sales.filter(s => s.status === 'Preparing').sort((a,b) => a.ts-b.ts).map(out),
@@ -721,6 +791,13 @@ const demo = (() => {
     },
     deleteProduct({ id }){ products = products.filter(x => x.id !== id); return { ok:true, ...clone() }; },
     uploadPhoto({ dataUrl }){ return { ok:true, url:dataUrl, fileId:'demo' }; },   // demo keeps the photo in memory only
+    scanReceipt({ method, total }){   // demo: pretend Google read a typical receipt (the live app reads the real photo)
+      const amt = Number(total || 0).toFixed(2);
+      const text = method === 'Bank Transfer'
+        ? `BDO\nTransfer Successful\nAmount: PHP ${amt}\nReference No.: 0012 3456 7890\nTransaction Date: 2026-11-08 17:23`
+        : `GCash\nSent via GCash\nTeodoro's Kitchen\n+63 956 *** 3581\nAmount ${amt}\nTotal Amount Sent ₱${amt}\nRef No. 1012 345 678901 Nov 8, 2026 11:32 AM`;
+      return { ok:true, text, ocrError:'', proofId:'demo', proofUrl:'https://drive.google.com/file/d/DEMO-PROOF/view' };
+    },
     saveCategory({ original, name, icon, visible }){
       name = (name || '').trim(); if (!name) throw err('Tab name is required.');
       if (categories.find(c => c.name.toLowerCase() === name.toLowerCase() && c.name !== original)) throw err(`A tab named "${name}" already exists.`);
@@ -886,7 +963,8 @@ function setPayMethod(m){
 }
 function updateChange(){
   const { total, count } = cartTotals();
-  if (payMethod !== 'Cash') { $('btnComplete').disabled = !count; return; }
+  if (payMethod !== 'Cash') { $('btnComplete').disabled = !count || scan.busy; $('btnComplete').textContent = scan.busy ? 'Reading photo…' : 'Complete Order'; return; }
+  $('btnComplete').textContent = 'Complete Order';
   const paid = parseFloat($('tender').value), box = $('changeBox');
   box.className = 'r change';
   if (isNaN(paid)) { $('cChange').textContent = '—'; $('btnComplete').disabled = true; return; }
@@ -897,7 +975,7 @@ function updateChange(){
 }
 function addToCart(id, d = 1){ const q = (cart.get(id) || 0) + d; q > 0 ? cart.set(id, q) : cart.delete(id);
   renderGrid(); renderBar(); if (isOpen('mCart')) renderCart(); }
-function clearCart(){ cart.clear(); $('tender').value = ''; $('custName').value = ''; $('refNo').value = ''; payMethod = 'Cash'; renderGrid(); renderBar(); }
+function clearCart(){ cart.clear(); $('tender').value = ''; $('custName').value = ''; $('refNo').value = ''; $('refNo').dataset.auto = ''; resetScan(); payMethod = 'Cash'; renderGrid(); renderBar(); }
 
 async function completeOrder(){
   const { total } = cartTotals(), payment = parseFloat($('tender').value);
@@ -905,15 +983,99 @@ async function completeOrder(){
   const btn = $('btnComplete'); btn.disabled = true; btn.textContent = 'Saving…';
   try {
     const r = await api('checkout', { method:payMethod, payment, reference:$('refNo').value.trim(), customer:$('custName').value.trim(),
+                                      proofUrl: payMethod === 'Cash' ? '' : scan.proofUrl,
                                       items:[...cart].map(([id,qty]) => ({ id, qty })) });
     clearCart(); closeModal('mCart');
     $('rNo').textContent = pad3(r.orderNo); $('rCust').textContent = r.customer || ''; $('rTx').textContent = r.transactionId;
     $('rRows').innerHTML = `<div><span>Total</span><b>${fmt(r.total)}</b></div><div><span>Paid by</span>${pmChip(r.method)}</div>` +
       (r.method === 'Cash' ? `<div><span>Cash received</span><b>${fmt(r.payment)}</b></div><div><span>Change</span><span class="chg">${fmt(r.change)}</span></div>`
-                           : r.reference ? `<div><span>Reference no.</span><b>${esc(r.reference)}</b></div>` : '');
+                           : (r.reference ? `<div><span>Reference no.</span><b>${esc(r.reference)}</b></div>` : '') +
+                             (r.proofUrl ? `<div><span>Proof of payment</span><b style="color:var(--green)">📎 Saved</b></div>` : ''));
     openModal('mReceipt'); loadOrders();
   } catch (e) { toast(e.message, true); if (e.code !== 'AUTH') loadMenu(true); }
   finally { btn.textContent = 'Complete Order'; updateChange(); }
+}
+
+/* ---------------------------- Receipt scanning ---------------------------- */
+/** Picks the reference number (and amount) out of the text Google's OCR read from a G-Cash / bank receipt photo. */
+function parseReceipt(text, total){
+  const t = String(text || '').replace(/\r/g, '').replace(/[|]/g, ' ');
+  const lines = t.split('\n').map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const cands = [];
+  const clean = v => v.replace(/[\s-]/g, '').toUpperCase();
+  const add = (raw, score, labeled) => {
+    const v = clean(raw);
+    if (v.length < 6 || v.length > 30) return;
+    if (labeled ? (v.match(/\d/g) || []).length < 4 : !/\d{4,}/.test(v)) return;
+    if (/^(09\d{9}|639\d{9})$/.test(v)) return;                        // PH mobile numbers
+    if (/^20\d{2}(0[1-9]|1[0-2])([0-2]\d|3[01])$/.test(v)) return;      // plain dates like 20261108
+    if (total && Math.abs(Number(v) / 100 - total) < 0.005) return;      // the amount itself (27800)
+    const ex = cands.find(c => c.v === v); if (ex) ex.s = Math.max(ex.s, score); else cands.push({ v, s: score });
+  };
+  const takeValue = str => {   // keep the leading run of number-ish tokens: "1012 345 678901 Nov 8" -> "1012 345 678901"
+    const out = [];
+    for (const tok of str.split(/\s+/)) {
+      if (/^[:#.\-]+$/.test(tok)) { if (out.length) break; else continue; }
+      const t2 = tok.replace(/^[:#.]+|[.,;:]+$/g, '');
+      if (/^[A-Z0-9-]+$/i.test(t2) && (/\d/.test(t2) || (!out.length && t2.length >= 6 && /[A-Z]/i.test(t2) && /\d/.test(str)))) out.push(t2);
+      else break;
+    }
+    return out.join(' ');
+  };
+  const LABEL = /\b(ref(?:erence)?\.?\s*(?:no\.?|num(?:ber)?\.?|#|code|id)?|transaction\s*(?:id|no\.?|number|ref(?:erence)?(?:\s*no\.?)?|code)|trace\s*(?:no\.?|number)|confirmation\s*(?:no\.?|number|code)|invoice\s*(?:no\.?|number)|txn\s*(?:id|no\.?)|control\s*no\.?)\s*[:#.\-]?\s*/i;
+  lines.forEach((ln, i) => {
+    const m = ln.match(LABEL);
+    if (!m) return;
+    const after = ln.slice(m.index + m[0].length);
+    const v = takeValue(after);
+    if (clean(v).length >= 6) add(v, /ref/i.test(m[1]) ? 10 : 8, true);
+    else if (lines[i + 1]) { const n = takeValue(lines[i + 1]); if (clean(n).length >= 6) add(n, /ref/i.test(m[1]) ? 9 : 7, true); }
+  });
+  (t.match(/(?<![\w.,])\d[\d ]{6,24}\d(?![\w.,])/g) || []).forEach(v => { if (/^\d{1,4}( \d{1,4})*$/.test(v) && v.replace(/ /g,'').length < 10) return; add(v, 2); });
+  cands.sort((a, b) => b.s - a.s || b.v.length - a.v.length);
+
+  const amounts = [];
+  const amtRe = /(?:₱|PHP|Php|php|\bP)\s?([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2})|[0-9]+\.[0-9]{2})/g;
+  let a; while ((a = amtRe.exec(t))) amounts.push(Number(a[1].replace(/,/g, '')));
+  lines.forEach(ln => { if (/amount|total|sent|paid/i.test(ln)) (ln.match(/[0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{2}/g) || []).forEach(x => amounts.push(Number(x.replace(/,/g, '')))); });
+  const uniq = [...new Set(amounts.filter(x => x > 0))];
+  const match = total > 0 && uniq.some(x => Math.abs(x - total) < 0.005);
+  return { refs: cands.slice(0, 3).map(c => c.v), amounts: uniq, amountMatch: uniq.length ? match : null };
+}
+
+function resetScan(){
+  scan = { busy:false, proofUrl:'', thumb:'' };
+  $('scanResult').style.display = 'none'; $('scanInfo').innerHTML = ''; $('scanInput').value = '';
+  $('btnScan').textContent = "📷 Scan customer's receipt";
+}
+async function handleScan(file){
+  if (!file) return;
+  if (!file.type.startsWith('image/')) return toast('Please take a photo of the receipt', true);
+  const { total } = cartTotals(), method = payMethod;
+  scan.busy = true; updateChange();
+  $('scanResult').style.display = ''; $('btnScan').textContent = '📷 Retake photo';
+  $('scanInfo').innerHTML = '<span><span class="spin"></span>Reading the reference number…</span><span class="muted">This takes a few seconds.</span>';
+  try {
+    const dataUrl = await resizeImage(file, SCAN_MAX_PX);
+    scan.thumb = dataUrl; $('scanThumb').src = dataUrl;
+    const r = await api('scanReceipt', { dataUrl, method, total });
+    scan.proofUrl = r.proofUrl || '';
+    const info = parseReceipt(r.text, total);
+    let html = '';
+    if (r.ocrError) html += `<span class="warn">⚠ ${esc(r.ocrError)}</span>`;
+    else if (info.refs.length) {
+      if (!$('refNo').value.trim() || $('refNo').dataset.auto === '1') { $('refNo').value = info.refs[0]; $('refNo').dataset.auto = '1'; }
+      html += `<span class="ok">✅ Reference no. found</span>`;
+      html += `<div class="chips">${info.refs.map(v => `<button type="button" data-ref="${esc(v)}" class="${v === $('refNo').value ? 'on' : ''}">${esc(v)}</button>`).join('')}</div>`;
+      if (info.refs.length > 1) html += `<span class="muted">Tap the correct one if it's not the first.</span>`;
+    } else html += `<span class="warn">⚠ Couldn't find a reference number. Type it below, or retake a clearer photo.</span>`;
+    if (info.amountMatch === true) html += `<span class="ok">✅ Amount ${fmt(total)} matches the order</span>`;
+    else if (info.amountMatch === false) html += `<span class="bad">❗ Receipt shows ${info.amounts.map(fmt).join(' / ')}, but the order total is ${fmt(total)}</span>`;
+    html += `<div class="acts">${scan.proofUrl ? `<span class="muted">📎 Saved as proof of payment</span>` : ''}<button type="button" id="scanClear">Remove photo</button></div>`;
+    $('scanInfo').innerHTML = html;
+  } catch (e) {
+    $('scanInfo').innerHTML = `<span class="bad">⚠ ${esc(e.message)}</span><span class="muted">You can still type the reference number below.</span>`;
+  } finally { scan.busy = false; updateChange(); }
 }
 
 /* ---------------------------- Orders queue ---------------------------- */
@@ -1018,27 +1180,78 @@ function renderReports(){
 
   renderSalesTable();
 
-  // top 5
-  const top = Object.entries(by).sort((a,b) => b[1].u - a[1].u || b[1].r - a[1].r).slice(0,5);
+  // per-meal sales lines (one row per meal per order)
+  mealRows = [];
+  sales.forEach(o => itemLines(o.items).forEach(([q,n,p]) => mealRows.push({ o, meal:n, qty:q, price:p, cost:q*p })));
+  bestTotals = Object.entries(by).sort((a,b) => b[1].u - a[1].u || b[1].r - a[1].r);
+  const sel = $('mealFilter'), cur = sel.value;
+  sel.innerHTML = '<option value="">All meals</option>' + bestTotals.map(([n,v]) => `<option value="${esc(n)}">${esc(n)} (${v.u} sold)</option>`).join('');
+  sel.value = bestTotals.some(([n]) => n === cur) ? cur : '';
+  if (reportTab === 'best') renderBest(); else renderMealTable();
+}
+function setReportTab(t){
+  reportTab = t;
+  document.querySelectorAll('#reportTabs button').forEach(b => b.classList.toggle('on', b.dataset.rtab === t));
+  $('paneOverview').style.display = t === 'overview' ? '' : 'none';
+  $('paneBest').style.display = t === 'best' ? '' : 'none';
+  $('paneOrders').style.display = t === 'orders' ? '' : 'none';
+  if (t === 'best') renderBest();
+}
+function renderBest(){
+  const top = bestTotals.slice(0,5);
   const labels = top.map(t => t[0]), data = top.map(t => t[1].u), money = top.map(t => t[1].r);
   const empty = !labels.length;
   $('chartEmpty').style.display = empty ? '' : 'none'; $('chart').style.display = empty ? 'none' : ''; $('bars').style.display = 'none';
   if (chart) { chart.destroy(); chart = null; }
+  renderMealTable();
   if (empty) return;
   const colors = ['#e5261c','#1e7a5a','#f2c230','#e5261c','#1e7a5a'];
-  if (typeof Chart === 'undefined') {
-    const max = Math.max(...data);
-    $('chart').style.display = 'none'; $('bars').style.display = 'flex';
-    $('bars').innerHTML = labels.map((l,i) => `<div class="b"><span>${i+1}. ${esc(l)}</span><span class="t"><i style="width:${data[i]/max*100}%;background:${colors[i]}"></i></span><span>${data[i]} sold</span></div>`).join('');
+  if (typeof Chart === 'undefined') {           // offline fallback: simple HTML bars
+    const max = Math.max(...data), selMeal = $('mealFilter').value;
+    $('chart').style.display = 'none'; $('bars').style.display = 'flex'; $('chart').parentElement.style.height = 'auto';
+    $('bars').innerHTML = labels.map((l,i) => `<div class="b ${l === selMeal ? 'sel' : ''}" data-meal="${esc(l)}"><span>${i+1}. ${esc(l)}</span><span class="t"><i style="width:${data[i]/max*100}%;background:${colors[i]}"></i></span><span>${data[i]} sold · ${fmt(money[i])}</span></div>`).join('');
     return;
   }
+  $('chart').parentElement.style.height = '';
   chart = new Chart($('chart'), {
     type:'bar',
     data:{ labels, datasets:[{ label:'Units sold', data, borderRadius:10, maxBarThickness:60, backgroundColor:colors }] },
     options:{ responsive:true, maintainAspectRatio:false, indexAxis: innerWidth < 700 ? 'y' : 'x',
-      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ afterLabel: c => 'Sales: ' + fmt(money[c.dataIndex]) } } },
+      onClick:(evt, els) => { if (els.length) setMeal(labels[els[0].index]); },
+      onHover:(evt, els) => { evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ afterLabel: c => 'Sales: ' + fmt(money[c.dataIndex]) + '\nTap to see every sale' } } },
       scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ precision:0 } } } }
   });
+}
+function renderMealTable(){
+  const m = $('mealFilter').value;
+  const list = mealRows.filter(r => !m || r.meal === m);
+  const units = list.reduce((s,r) => s + r.qty, 0), cost = list.reduce((s,r) => s + r.cost, 0);
+  $('mealTableTitle').firstChild.textContent = m ? `🍽️ ${m} — every sale ` : '🍽️ Meal sales ';
+  $('mealCount').textContent = `${list.length} sale${list.length === 1 ? '' : 's'} · ${units} sold · ${fmt(cost)}`;
+  document.querySelectorAll('#bars .b').forEach(b => b.classList.toggle('sel', b.dataset.meal === m));
+  $('mealBody').innerHTML = list.length ? list.slice(0, 1000).map(r => `<tr>
+      <td class="nowrap">${dateOf(r.o.ts)}</td><td class="nowrap">${timeOf(r.o.ts)}</td>
+      <td><button class="linkbtn" data-goto="${esc(r.o.id)}" title="Open this order in All Orders">${pad3(r.o.orderNo)}</button></td>
+      <td>${esc(r.o.customer || '—')}</td><td><b>${esc(r.meal)}</b></td>
+      <td class="num">${r.qty}</td><td class="num hide-sm">${fmt(r.price)}</td><td class="num"><b>${fmt(r.cost)}</b></td>
+      <td><button class="linkbtn" data-goto="${esc(r.o.id)}" title="Open this order in All Orders">${pmChip(r.o.method)}<span class="go">↗</span></button></td></tr>`).join('')
+    + (list.length > 1000 ? `<tr><td colspan="9" class="empty">Showing the first 1,000 rows. Pick a shorter date range to see the rest.</td></tr>` : '')
+    : `<tr><td colspan="9" class="empty">No sales of this meal in this period.</td></tr>`;
+}
+function setMeal(name){
+  $('mealFilter').value = name; renderMealTable();
+  $('mealTableTitle').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function gotoOrder(id){
+  setReportTab('orders');
+  $('salesSearch').value = ''; $('salesMethod').value = ''; renderSalesTable();
+  const find = () => document.querySelector(`#salesBody tr[data-oid="${CSS.escape(id)}"]`);
+  let row = find();
+  if (!row) { $('salesSearch').value = id; renderSalesTable(); row = find(); }
+  if (!row) return toast('Order not found in this date range', true);
+  row.scrollIntoView({ behavior:'smooth', block:'center' });
+  row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
 }
 function filteredSales(){
   const q = $('salesSearch').value.trim().toLowerCase(), m = $('salesMethod').value;
@@ -1049,11 +1262,11 @@ function renderSalesTable(){
   const list = filteredSales();
   const sum = list.reduce((s,o) => s + o.total, 0);
   $('ordersCount').textContent = `${list.length} order${list.length === 1 ? '' : 's'} · ${fmt(sum)}`;
-  $('salesBody').innerHTML = list.length ? list.slice(0, 1000).map(o => `<tr>
+  $('salesBody').innerHTML = list.length ? list.slice(0, 1000).map(o => `<tr data-oid="${esc(o.id)}">
       <td class="nowrap">${dateOf(o.ts)}</td><td class="nowrap">${timeOf(o.ts)}</td>
       <td><b>${pad3(o.orderNo)}</b></td><td>${esc(o.customer || '—')}</td>
       <td class="items">${esc(itemsText(o.items))}</td><td>${pmChip(o.method)}</td>
-      <td class="hide-sm">${esc(o.reference || '')}</td><td class="hide-sm">${esc(o.cashier || '')}</td>
+      <td class="hide-sm">${esc(o.reference || '')}${o.proofUrl ? ` <a class="prooflink" href="${esc(o.proofUrl)}" target="_blank" rel="noopener" title="Open the payment photo in Google Drive">📎 Proof</a>` : ''}</td><td class="hide-sm">${esc(o.cashier || '')}</td>
       <td class="hide-sm">${o.status === 'Preparing' ? '🍳 Preparing' : '✅ Done'}</td>
       <td class="num"><b>${fmt(o.total)}</b></td></tr>`).join('')
     + (list.length > 1000 ? `<tr><td colspan="10" class="empty">Showing the first 1,000 rows here. Download the CSV for all ${list.length}.</td></tr>` : '')
@@ -1063,9 +1276,9 @@ function downloadCsv(){
   const list = filteredSales();
   if (!list.length) return toast('Nothing to download', true);
   const cell = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const head = ['Date','Time','Order No','Transaction ID','Customer','Items','Payment Method','Reference No','Total','Amount Received','Change','Cashier','Status','Completed At'];
+  const head = ['Date','Time','Order No','Transaction ID','Customer','Items','Payment Method','Reference No','Total','Amount Received','Change','Cashier','Status','Completed At','Proof of Payment'];
   const rows = list.slice().reverse().map(o => [dayKey(o.ts), timeOf(o.ts), pad3(o.orderNo), o.id, o.customer, itemsText(o.items), o.method, o.reference,
-    o.total.toFixed(2), o.paid.toFixed(2), o.change.toFixed(2), o.cashier, o.status, o.completedAt ? new Date(o.completedAt).toLocaleString('en-PH') : '']);
+    o.total.toFixed(2), o.paid.toFixed(2), o.change.toFixed(2), o.cashier, o.status, o.completedAt ? new Date(o.completedAt).toLocaleString('en-PH') : '', o.proofUrl || '']);
   const csv = '﻿' + [head, ...rows].map(r => r.map(cell).join(',')).join('\r\n');
   const [f, t] = rangeBounds(salesRange);
   const name = `teodoros-sales_${f ? dayKey(f) : 'all'}${t ? '_to_' + dayKey(new Date(t - 1)) : ''}.csv`;
@@ -1135,11 +1348,11 @@ function openItem(p){
   $('btnDeleteItem').style.display = p ? '' : 'none';
   renderPhotoPrev(); openModal('mItem');
 }
-function resizeImage(file){
+function resizeImage(file, maxPx = PHOTO_MAX_PX){
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file), img = new Image();
     img.onload = () => {
-      const s = Math.min(1, PHOTO_MAX_PX / Math.max(img.width, img.height));
+      const s = Math.min(1, maxPx / Math.max(img.width, img.height));
       const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
       const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url); resolve(c.toDataURL('image/jpeg', 0.82));
@@ -1256,6 +1469,14 @@ $('btnCart').onclick = () => { renderCart(); openModal('mCart'); };
 $('btnPay').onclick = () => { renderCart(); openModal('mCart'); if (payMethod === 'Cash') setTimeout(() => $('tender').focus(), 50); };
 $('btnCancel').onclick = () => { if (cart.size && confirm('Cancel this order and clear the cart?')) { clearCart(); toast('Order cancelled'); } };
 $('btnComplete').onclick = completeOrder;
+$('btnScan').onclick = () => $('scanInput').click();
+$('scanInput').addEventListener('change', e => handleScan(e.target.files[0]));
+$('scanInfo').addEventListener('click', e => {
+  const c = e.target.closest('[data-ref]');
+  if (c) { $('refNo').value = c.dataset.ref; $('refNo').dataset.auto = '1'; document.querySelectorAll('#scanInfo [data-ref]').forEach(b => b.classList.toggle('on', b === c)); }
+  if (e.target.id === 'scanClear') { resetScan(); if ($('refNo').dataset.auto === '1') { $('refNo').value = ''; $('refNo').dataset.auto = ''; } updateChange(); }
+});
+$('refNo').addEventListener('input', () => { $('refNo').dataset.auto = ''; document.querySelectorAll('#scanInfo [data-ref]').forEach(b => b.classList.toggle('on', b.dataset.ref === $('refNo').value.trim())); });
 $('payMethods').addEventListener('click', e => { const b = e.target.closest('[data-pm]'); if (b) { setPayMethod(b.dataset.pm); (b.dataset.pm === 'Cash' ? $('tender') : $('refNo')).focus(); } });
 $('tender').addEventListener('input', updateChange);
 $('tender').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('btnComplete').disabled) completeOrder(); });
@@ -1282,6 +1503,10 @@ $('btnApplyRange').onclick = loadReports;
 $('salesSearch').addEventListener('input', renderSalesTable);
 $('salesMethod').addEventListener('change', renderSalesTable);
 $('btnCsv').onclick = downloadCsv;
+$('reportTabs').addEventListener('click', e => { const b = e.target.closest('[data-rtab]'); if (b) setReportTab(b.dataset.rtab); });
+$('mealFilter').addEventListener('change', renderMealTable);
+$('mealBody').addEventListener('click', e => { const b = e.target.closest('[data-goto]'); if (b) gotoOrder(b.dataset.goto); });
+$('bars').addEventListener('click', e => { const b = e.target.closest('[data-meal]'); if (b) setMeal(b.dataset.meal); });
 
 // manage
 $('btnManage').onclick = () => { renderOwner(); openModal('mOwner'); if (ownerTab === 'users') loadUsers(); };
