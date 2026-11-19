@@ -215,10 +215,23 @@
   .ocard.new{animation:newcard 2.4s ease-out 2}
   @keyframes newcard{0%,40%{box-shadow:0 0 0 8px var(--yellow);border-color:var(--red)}100%{box-shadow:none}}
   .mon-only{display:none}
-  .stockstrip{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+  .ohead{flex-wrap:wrap;justify-content:flex-start;gap:12px 16px}
+  .ohead h3{margin-right:6px}
+  .ohead .tabs{margin:0}
+  .ohead .x{margin-left:auto}
+  .stockstrip{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1 1 380px;min-width:0;padding:2px 0}
+  #mOrders:not(.monitor) .stockstrip{display:none}
+  #mOrders:not(.monitor) .ohead h3{flex:1}
+  #mOrders:not(.monitor) .ohead .x{order:1}
+  #mOrders:not(.monitor) .ohead .tabs{order:2;width:100%}
+  .hintrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .hintrow .orders-hint{margin:-6px 0 14px}
+  #mOrders.monitor .mhead h3{font-size:22px}
+  .ohead .tabs{flex-wrap:nowrap}
+  .ohead .tabs button{white-space:nowrap}
   .stockstrip:empty{display:none}
-  .schip{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:#fff;border-radius:14px;padding:8px 14px;font-weight:800}
-  .schip b{font-family:var(--display);font-size:22px;color:var(--green);min-width:28px;text-align:center}
+  .schip{display:flex;align-items:center;gap:5px;border:2px solid var(--line);background:#fff;border-radius:10px;padding:3px 9px;font-weight:800;font-size:13px;white-space:nowrap;flex:0 0 auto}
+  .schip b{font-family:var(--display);font-size:18px;color:var(--green);min-width:20px;text-align:center}
   .schip.low{border-color:var(--yellow-deep);background:var(--warn-soft)} .schip.low b{color:var(--warn)}
   .schip.out{border-color:var(--red);background:var(--red-soft)} .schip.out b{color:var(--red)}
   .clock{font-family:var(--display);font-weight:600;font-size:20px;color:var(--green)}
@@ -227,7 +240,6 @@
   #mOrders.monitor{top:var(--hdr-h,90px);padding:0;background:var(--bg);align-items:stretch;z-index:40}
   #mOrders.monitor .modal{max-width:none;max-height:none;height:100%;border-radius:0;box-shadow:none;background:var(--bg)}
   #mOrders.monitor .mhead{border-radius:0;padding:14px 28px}
-  #mOrders.monitor .mhead h3{font-size:26px}
   #mOrders.monitor .mbody{padding:20px 28px 28px}
   #mOrders.monitor .mon-only{display:flex}
   #mOrders.monitor .ogrid{grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
@@ -237,7 +249,7 @@
   #mOrders.monitor .ocard li{font-size:21px}
   #mOrders.monitor .ocard .cust{font-size:19px}
   #mOrders.monitor .done-btn{font-size:19px;padding:12px 20px}
-  #mOrders.monitor .tabs button{font-size:17px;padding:10px 18px}
+  #mOrders.monitor .tabs button{font-size:16px;padding:8px 14px}
   body.monitoring #btnOrders{background:var(--green);border-color:var(--green);color:#fff}
 
   /* Inventory (owner) */
@@ -376,6 +388,9 @@
     .line{grid-template-columns:1fr auto auto}
     .line .lt{display:none}
     .hide-sm{display:none}
+    .ohead{gap:10px}
+    .ohead .tabs button{font-size:13px;padding:6px 10px}
+    .ohead h3{font-size:17px}
     .field{width:160px}
     .emoji-grid{grid-template-columns:repeat(6,1fr)}
     .paysum{grid-template-columns:1fr}
@@ -504,14 +519,15 @@
 <!-- Orders queue -->
 <div class="overlay" id="mOrders">
   <div class="modal wide">
-    <div class="mhead"><h3>🍳 Orders</h3><span class="spacer" style="flex:1"></span><span class="clock mon-only" id="monClock"></span><button class="x" data-close title="Close">✕</button></div>
-    <div class="mbody">
-      <div class="stockstrip mon-only" id="stockStrip"></div>
+    <div class="mhead ohead"><h3>🍳 Orders</h3>
       <div class="tabs" id="orderTabs">
         <button data-otab="preparing" class="on">🍳 Preparing<span class="n" id="nPrep">0</span></button>
         <button data-otab="completed">✅ Completed today<span class="n" id="nDone">0</span></button>
       </div>
-      <p class="orders-hint" id="ordersHint"></p>
+      <div class="stockstrip mon-only" id="stockStrip"></div>
+      <button class="x" data-close title="Close">✕</button></div>
+    <div class="mbody">
+      <div class="hintrow"><p class="orders-hint" id="ordersHint"></p><span class="clock mon-only" id="monClock"></span></div>
       <div id="ordersBody"></div>
     </div>
   </div>
@@ -610,10 +626,10 @@
           <button class="btn btn-ghost btn-sm" id="btnInvRefill" title="Left = Prepared for every tracked item">🔄 New day</button>
           <button class="btn btn-green btn-sm" id="btnInvSave" disabled>💾 Save</button>
         </div>
-        <p class="orders-hint" style="margin:0 0 12px">Type how many you <b>prepared</b>. <b>Left</b> goes down by itself each time the register completes an order. Leave Prepared blank to not track an item.</p>
+        <p class="orders-hint" style="margin:0 0 12px">Type how many you <b>prepared</b>. <b>Left</b> = Prepared − sold today, and keeps going down by itself with every paid order on any phone or computer. Leave Prepared blank to not track an item.</p>
         <div class="tablewrap">
           <table>
-            <thead><tr><th>Item</th><th class="num">Prepared</th><th class="num">Sold</th><th class="num">Left</th><th class="hide-sm" style="width:24%"></th></tr></thead>
+            <thead><tr><th>Item</th><th class="num">Prepared</th><th class="num">Sold today</th><th class="num">Left</th><th class="hide-sm" style="width:24%"></th></tr></thead>
             <tbody id="invBody"></tbody>
           </table>
         </div>
@@ -823,7 +839,9 @@ const demo = (() => {
   [55, 38, 24, 12, 4].forEach((m, i) => addSale(now - m * 60e3, i < 2 ? 'Completed' : 'Preparing'));
   sales.sort((a,b) => a.ts - b.ts);
 
-  const clone = () => ({ items: products.map(p => ({...p})), categories: categories.map(c => ({...c})) });
+  const soldToday = () => { const t = new Date(); t.setHours(0,0,0,0); const o = {};
+    sales.filter(x => x.ts >= t.getTime()).forEach(x => x.lines.forEach(([n,q]) => o[n] = (o[n] || 0) + q)); return o; };
+  const clone = () => { const st = soldToday(); return { items: products.map(p => ({...p, soldToday: st[p.name] || 0})), categories: categories.map(c => ({...c})) }; };
   const summary = s => s.lines.map(([n,q,p]) => `${q}x ${n} @ ${p.toFixed(2)}`).join(' | ');
   const out = s => ({ id:s.id, orderNo:s.orderNo, ts:new Date(s.ts).toISOString(), customer:s.customer, items:summary(s),
     total:s.total, paid:s.paid, change:s.change, method:s.method, reference:s.reference, cashier:s.cashier, status:s.status, proofUrl:s.proofUrl || '',
@@ -875,7 +893,7 @@ const demo = (() => {
       updates.forEach(u => { const p = products.find(x => x.id === u.id); if (!p) throw err('Item not found.');
         const prep = u.prepared === '' || u.prepared == null ? null : Math.max(0, parseInt(u.prepared,10) || 0);
         if (prep === null) { p.prepared = null; p.stock = null; return; }
-        const left = u.stock === '' || u.stock == null ? prep : Math.max(0, parseInt(u.stock,10) || 0);
+        const left = u.stock === '' || u.stock == null ? Math.max(0, prep - (soldToday()[p.name] || 0)) : Math.max(0, parseInt(u.stock,10) || 0);
         p.prepared = prep; p.stock = left; });
       return { ok:true, ...clone() };
     },
@@ -974,7 +992,7 @@ function enterApp(){
   loadMenu(true); loadOrders();
   clearInterval(pollTimer); let tick = 0;
   pollTimer = setInterval(() => { if (document.hidden || !session) return; loadOrders();
-    if (++tick % 2 === 0 && !isOpen('mOwner') && !isOpen('mItem') && !isOpen('mCart')) silentMenu(); }, ORDERS_POLL_SEC * 1000);
+    if ((isOpen('mOrders') || ++tick % 2 === 0) && !isOpen('mOwner') && !isOpen('mItem') && !isOpen('mCart')) silentMenu(); }, ORDERS_POLL_SEC * 1000);
   if (new URLSearchParams(location.search).get('view') === 'orders') setTimeout(openOrders, 300);
 }
 function logout(msg){
@@ -994,7 +1012,8 @@ const visibleCats = () => cats.filter(c => c.visible);
 
 function setMenu(res){
   products = (res.items || []).map(p => ({ ...p, id:String(p.id), price:Number(p.price) || 0, available:p.available !== false,
-    stock: p.stock == null || p.stock === '' ? null : Number(p.stock), prepared: p.prepared == null || p.prepared === '' ? null : Number(p.prepared) }));
+    stock: p.stock == null || p.stock === '' ? null : Number(p.stock), prepared: p.prepared == null || p.prepared === '' ? null : Number(p.prepared),
+    soldToday: Number(p.soldToday) || 0 }));
   cats = (res.categories || []).slice().sort((a,b) => a.order - b.order);
   products.forEach(p => { if (!catMeta(p.category)) cats.push({ name:p.category, icon:'🍽️', visible:true, order:999 }); });
   cart.forEach((q,id) => { const p = byId(id); if (!p || !p.available || catMeta(p.category)?.visible === false || p.stock === 0) cart.delete(id); else if (p.stock !== null && q > p.stock) cart.set(id, p.stock); });
@@ -1196,13 +1215,14 @@ function fitHeader(){ document.documentElement.style.setProperty('--hdr-h', docu
 function tickClock(){ $('monClock').textContent = new Date().toLocaleTimeString('en-PH', { hour:'numeric', minute:'2-digit' }); }
 function renderStockStrip(){
   const tracked = products.filter(p => p.stock !== null && catMeta(p.category)?.visible !== false);
-  $('stockStrip').innerHTML = tracked.length ? `<span style="font-weight:800;color:var(--muted);align-self:center">📦 Left today</span>` + tracked.map(p =>
+  $('stockStrip').innerHTML = tracked.length ? `<span style="font-weight:800;color:var(--muted);white-space:nowrap;font-size:14px">📦 Left</span>` + tracked.map(p =>
     `<span class="schip ${p.stock === 0 ? 'out' : p.stock <= LOW_STOCK ? 'low' : ''}"><b>${p.stock}</b>${esc(p.name)}</span>`).join('') : '';
 }
 function renderOrders(){
   const n = orders.preparing.length;
   const ids = new Set(orders.preparing.map(o => o.id)), fresh = knownPrep ? [...ids].filter(i => !knownPrep.has(i)) : [];
   knownPrep = ids;
+  if (fresh.length && !isOpen('mOwner') && !isOpen('mCart')) silentMenu();   // a new paid order: refresh bowls left right away
   $('prepBadge').textContent = n || ''; $('nPrep').textContent = n; $('nDone').textContent = orders.completed.length;
   document.querySelectorAll('#orderTabs button').forEach(b => b.classList.toggle('on', b.dataset.otab === orderTab));
   if (!isOpen('mOrders')) return;
@@ -1448,12 +1468,12 @@ function renderInventory(){
     html += list.map(p => {
       const v = invVal(p), d = invDraft[p.id] || {}, tracked = v.prepared !== null && v.prepared !== '';
       const prep = tracked ? Number(v.prepared) : null, left = tracked ? Number(v.stock ?? prep) : null;
-      const sold = tracked ? Math.max(0, prep - left) : null, pct = tracked && prep ? Math.round(left / prep * 100) : 0;
+      const sold = p.soldToday || 0, pct = tracked && prep ? Math.round(left / prep * 100) : 0;
       const cls = !tracked ? '' : left === 0 ? 'out' : left <= LOW_STOCK ? 'low' : '';
       return `<tr>
         <td><b>${esc(p.name)}</b>${!tracked ? '<div style="font-size:12px;color:var(--muted)">Not tracked</div>' : left === 0 ? '<div style="font-size:12px;color:var(--red);font-weight:800">Sold out</div>' : ''}</td>
         <td class="num"><input class="inv-in ${'prepared' in d ? 'dirty' : ''}" type="number" min="0" step="1" inputmode="numeric" data-prep="${esc(p.id)}" value="${tracked ? prep : ''}" placeholder="—"></td>
-        <td class="num" style="font-weight:800;color:var(--muted)">${tracked ? sold : '—'}</td>
+        <td class="num" style="font-weight:800;color:var(--muted)">${sold}</td>
         <td class="num"><input class="inv-in ${'stock' in d ? 'dirty' : ''}" type="number" min="0" step="1" inputmode="numeric" data-left="${esc(p.id)}" value="${tracked ? left : ''}" placeholder="—" ${tracked ? '' : 'disabled'}></td>
         <td class="hide-sm">${tracked ? `<div class="bar ${cls}"><i style="width:${pct}%"></i></div>` : ''}</td></tr>`; }).join('');
   });
@@ -1465,8 +1485,7 @@ function invEdit(id, field, raw){
   const val = raw === '' ? null : Math.max(0, parseInt(raw, 10) || 0);
   const d = invDraft[id] = invDraft[id] || {};
   if (field === 'prepared') {
-    const cur = invVal(p), soldNow = cur.prepared != null ? Math.max(0, cur.prepared - (cur.stock ?? cur.prepared)) : 0;
-    d.prepared = val; d.stock = val === null ? null : Math.max(0, val - soldNow);   // keep what was already sold
+    d.prepared = val; d.stock = val === null ? null : Math.max(0, val - (p.soldToday || 0));   // subtract everything already sold today
   } else d.stock = val;
   if (d.prepared === p.prepared && (d.stock ?? null) === p.stock) delete invDraft[id];
 }
