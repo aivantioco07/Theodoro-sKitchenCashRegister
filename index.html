@@ -604,7 +604,7 @@
 
       <div id="paneInventory">
         <div class="inv-tools">
-          <span style="font-weight:700">Set every <b>steak bowl</b> to</span><input type="number" id="invAll" min="0" step="1" inputmode="numeric" placeholder="e.g. 20">
+          <span style="font-weight:700">Set every <b>main / steak bowl</b> to</span><input type="number" id="invAll" min="0" step="1" inputmode="numeric" placeholder="e.g. 20">
           <button class="btn btn-ghost btn-sm" id="btnInvAll">Apply</button>
           <span class="grow"></span>
           <button class="btn btn-ghost btn-sm" id="btnInvRefill" title="Left = Prepared for every tracked item">🔄 New day</button>
@@ -1675,7 +1675,9 @@ $('invBody').addEventListener('input', e => { const t = e.target;
 $('invBody').addEventListener('change', () => renderInventory());
 $('btnInvSave').onclick = saveInventory;
 $('btnInvAll').onclick = () => { const v = $('invAll').value; if (v === '') return toast('Type a number first', true);
-  products.filter(p => p.category === 'Steak Bowls' || /bowl|steak/i.test(p.category)).forEach(p => invEdit(p.id, 'prepared', v)); renderInventory(); toast('Not saved yet. Tap 💾 Save'); };
+  let list = products.filter(p => /bowl|steak|main/i.test(p.category));
+  if (!list.length && cats[0]) list = products.filter(p => p.category === cats[0].name);   // fall back to the first tab
+  list.forEach(p => invEdit(p.id, 'prepared', v)); renderInventory(); toast(`${list.length} items set to ${v}. Not saved yet. Tap 💾 Save`); };
 $('btnInvRefill').onclick = () => { const t = products.filter(p => invVal(p).prepared != null);
   if (!t.length) return toast('No tracked items yet', true);
   if (!confirm('Start a new day? "Left" will be reset to "Prepared" for every tracked item.')) return;
